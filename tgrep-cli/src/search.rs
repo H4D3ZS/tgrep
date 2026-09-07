@@ -15,7 +15,7 @@ use tgrep_core::query::{self, QueryPlan};
 use tgrep_core::reader::IndexReader;
 use tgrep_core::walker;
 
-use crate::matching::SearchMatcher;
+use tgrep_core::matching::SearchMatcher;
 use crate::output::{ColorMode, ContextLine, Match, OutputConfig, OutputFormat, OutputWriter};
 use crate::serve::ServerInfo;
 
@@ -82,7 +82,7 @@ pub struct SearchOptions {
     // ── Matching ──
     pub line_regexp: bool,
     pub no_unicode: bool,
-    pub engine: crate::matching::RegexEngine,
+    pub engine: tgrep_core::matching::RegexEngine,
     pub regex_size_limit: Option<usize>,
     pub dfa_size_limit: Option<usize>,
     pub replace: Option<String>,
@@ -277,8 +277,8 @@ impl SearchOptions {
             && !self.quiet
     }
 
-    fn match_options(&self) -> crate::matching::MatchOptions {
-        crate::matching::MatchOptions {
+    fn match_options(&self) -> tgrep_core::matching::MatchOptions {
+        tgrep_core::matching::MatchOptions {
             invert_match: self.invert_match,
             multiline: self.multiline,
             only_matching: self.effective_only_matching(),
@@ -303,12 +303,12 @@ impl SearchOptions {
     }
 
     fn matcher(&self, ci: bool) -> Result<SearchMatcher> {
-        crate::matching::build_search_matcher(&self.all_patterns()?, &self.matcher_config(ci))
+        tgrep_core::matching::build_search_matcher(&self.all_patterns()?, &self.matcher_config(ci))
     }
 
     /// Pattern-compilation settings, shared with the server path.
-    pub fn matcher_config(&self, ci: bool) -> crate::matching::MatcherConfig {
-        crate::matching::MatcherConfig {
+    pub fn matcher_config(&self, ci: bool) -> tgrep_core::matching::MatcherConfig {
+        tgrep_core::matching::MatcherConfig {
             case_insensitive: ci,
             fixed_string: self.fixed_string,
             word_boundary: self.word_boundary,
@@ -1714,7 +1714,7 @@ fn search_decoded_file(
     );
 
     let match_opts = opts.match_options();
-    let found = crate::matching::FileMatches::find(content, matcher, &match_opts)?;
+    let found = tgrep_core::matching::FileMatches::find(content, matcher, &match_opts)?;
 
     let has_matches = !found.is_empty();
     if !has_matches {
@@ -1763,7 +1763,7 @@ fn search_decoded_file(
 
     found.for_each(&match_opts, matcher, |emit| -> Result<()> {
         match emit {
-            crate::matching::Emit::Match {
+            tgrep_core::matching::Emit::Match {
                 line_number,
                 content,
                 columns,
@@ -1793,7 +1793,7 @@ fn search_decoded_file(
                     terminator_len,
                 })?;
             }
-            crate::matching::Emit::Context {
+            tgrep_core::matching::Emit::Context {
                 line_number,
                 content,
                 absolute_offset,

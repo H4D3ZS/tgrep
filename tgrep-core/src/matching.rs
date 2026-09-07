@@ -255,7 +255,7 @@ pub enum SearchMatcher {
     /// that is the difference between seconds and never finishing.
     ///
     /// `prefilter` is the pattern relaxed into a form the linear-time engine can
-    /// compile (see `tgrep_core::query::relax_for_indexing`). Relaxation only
+    /// compile (see `crate::query::relax_for_indexing`). Relaxation only
     /// widens the language, so a haystack the prefilter rejects cannot possibly
     /// match the real pattern - which makes it sound to use for negative
     /// answers, and only for negative answers.
@@ -502,7 +502,7 @@ fn build_fancy(combined: &str, cfg: &MatcherConfig) -> Result<SearchMatcher> {
 /// relax or fails to compile simply yields no prefilter, which costs performance
 /// and never correctness.
 fn build_fancy_prefilter(combined: &str, wrap: &dyn Fn(&str) -> String) -> Option<regex::Regex> {
-    let relaxed = tgrep_core::query::relax_for_indexing(combined)?;
+    let relaxed = crate::query::relax_for_indexing(combined)?;
     if relaxed == combined {
         return None;
     }
@@ -1366,7 +1366,7 @@ mod tests {
 
         for pattern in patterns {
             let fancy = fancy_regex::Regex::new(pattern).expect("pattern compiles as PCRE");
-            let Some(relaxed_src) = tgrep_core::query::relax_for_indexing(pattern) else {
+            let Some(relaxed_src) = crate::query::relax_for_indexing(pattern) else {
                 continue; // bailing out is always safe
             };
             let Ok(relaxed) = regex::Regex::new(&relaxed_src) else {

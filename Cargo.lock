@@ -1134,6 +1134,7 @@ dependencies = [
  "blake3",
  "criterion",
  "encoding_rs",
+ "fancy-regex",
  "globset",
  "ignore",
  "memchr",

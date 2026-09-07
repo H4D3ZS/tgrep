@@ -682,8 +682,8 @@ struct SearchOpts {
 
 impl SearchOpts {
     /// The matching-relevant subset, shared with the local search path.
-    fn match_options(&self) -> crate::matching::MatchOptions {
-        crate::matching::MatchOptions {
+    fn match_options(&self) -> tgrep_core::matching::MatchOptions {
+        tgrep_core::matching::MatchOptions {
             invert_match: self.invert_match,
             multiline: self.multiline,
             only_matching: self.only_matching,
@@ -1285,7 +1285,7 @@ fn handle_files(id: Option<serde_json::Value>, state: &ServerState) -> String {
 struct SearchRequest {
     pattern: String,
     case_insensitive: bool,
-    matcher: crate::matching::SearchMatcher,
+    matcher: tgrep_core::matching::SearchMatcher,
     plan: query::QueryPlan,
     glob_filter: crate::glob_filter::GlobFilter,
     type_filter: tgrep_core::filetypes::TypeFilter,
@@ -1417,7 +1417,7 @@ fn parse_search_params(params: &serde_json::Value) -> std::result::Result<Search
         .get("no_unicode")
         .and_then(|v| v.as_bool())
         .unwrap_or(false);
-    let engine = crate::matching::RegexEngine::from_str_opt(
+    let engine = tgrep_core::matching::RegexEngine::from_str_opt(
         params
             .get("engine")
             .and_then(|v| v.as_str())
@@ -1473,9 +1473,9 @@ fn parse_search_params(params: &serde_json::Value) -> std::result::Result<Search
     let mut all_patterns = vec![pattern.to_string()];
     all_patterns.extend(extra_patterns);
 
-    let matcher = crate::matching::build_search_matcher(
+    let matcher = tgrep_core::matching::build_search_matcher(
         &all_patterns,
-        &crate::matching::MatcherConfig {
+        &tgrep_core::matching::MatcherConfig {
             case_insensitive,
             fixed_string,
             word_boundary,
@@ -1802,10 +1802,10 @@ fn invalidate_cached_paths_locked<'a>(
 fn search_file_matches(
     rel_path: &str,
     file: &DecodedFile,
-    matcher: &crate::matching::SearchMatcher,
+    matcher: &tgrep_core::matching::SearchMatcher,
     opts: &SearchOpts,
 ) -> anyhow::Result<Vec<serde_json::Value>> {
-    use crate::matching::FileMatches;
+    use tgrep_core::matching::FileMatches;
 
     let content = file.text.as_str();
     let fixups = &file.fixups;
@@ -1876,15 +1876,15 @@ fn search_file_matches(
 
 /// Turn a file's matches into the protocol's `match`/`context` rows.
 fn collect_match_rows(
-    found: &crate::matching::FileMatches,
-    match_opts: &crate::matching::MatchOptions,
-    matcher: &crate::matching::SearchMatcher,
+    found: &tgrep_core::matching::FileMatches,
+    match_opts: &tgrep_core::matching::MatchOptions,
+    matcher: &tgrep_core::matching::SearchMatcher,
     rel_path: &str,
     fixups: &tgrep_core::encoding::LossyFixups,
     detail: bool,
     positions: bool,
 ) -> anyhow::Result<Vec<serde_json::Value>> {
-    use crate::matching::Emit;
+    use tgrep_core::matching::Emit;
 
     let mut results = Vec::new();
     found.for_each(match_opts, matcher, |emit| -> anyhow::Result<()> {
@@ -8146,9 +8146,9 @@ mod tests {
             "the fixture must actually shift the offset, or this proves nothing"
         );
 
-        let matcher = crate::matching::build_search_matcher(
+        let matcher = tgrep_core::matching::build_search_matcher(
             &["needle".to_string()],
-            &crate::matching::MatcherConfig::default(),
+            &tgrep_core::matching::MatcherConfig::default(),
         )
         .unwrap();
 

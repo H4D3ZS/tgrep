@@ -8,7 +8,6 @@
 mod cpu;
 mod glob_filter;
 mod index;
-mod matching;
 mod mem;
 mod output;
 mod search;
@@ -509,7 +508,7 @@ struct ResolvedArgs {
     /// unambiguous request to search it — but honours one the user set.
     max_filesize_requested: bool,
     encoding: tgrep_core::encoding::EncodingMode,
-    engine: matching::RegexEngine,
+    engine: tgrep_core::matching::RegexEngine,
     regex_size_limit: Option<usize>,
     dfa_size_limit: Option<usize>,
     sort: Option<search::SortMode>,
@@ -724,9 +723,9 @@ impl Cli {
     /// error instead of silently searching with different settings.
     fn resolve(&self) -> Result<ResolvedArgs> {
         let engine = if self.pcre2 {
-            matching::RegexEngine::Pcre2
+            tgrep_core::matching::RegexEngine::Pcre2
         } else {
-            matching::RegexEngine::from_str_opt(&self.engine)
+            tgrep_core::matching::RegexEngine::from_str_opt(&self.engine)
                 .ok_or_else(|| anyhow::anyhow!("unrecognized regex engine: {}", self.engine))?
         };
 
